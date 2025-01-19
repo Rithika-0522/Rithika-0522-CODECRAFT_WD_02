@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stopwatch Application</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f5f5f5;
+    }
+
+    .stopwatch {
+      text-align: center;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .time {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+
+    .controls button {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.3s ease;
+    }
+
+    .controls button:hover {
+      background-color: #0056b3;
+    }
+
+    .laps {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .laps h3 {
+      margin-bottom: 10px;
+    }
+
+    .laps ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .laps li {
+      padding: 5px 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="stopwatch">
+  <div class="time" id="display">00:00:00</div>
+  <div class="controls">
+    <button id="start">Start</button>
+    <button id="pause">Pause</button>
+    <button id="reset">Reset</button>
+    <button id="lap">Lap</button>
+  </div>
+  <div class="laps" id="laps">
+    <h3>Lap Times</h3>
+    <ul></ul>
+  </div>
+</div>
+
+<script>
+  let startTime = 0;
+  let elapsedTime = 0;
+  let timerInterval;
+  let isRunning = false;
+
+  const display = document.getElementById('display');
+  const lapsContainer = document.getElementById('laps').querySelector('ul');
+
+  function formatTime(ms) {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    const milliseconds = Math.floor((ms % 1000) / 10);
+
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}:${String(milliseconds).padStart(2, '0')}`;
+  }
+
+  function updateTime() {
+    elapsedTime = Date.now() - startTime;
+    display.textContent = formatTime(elapsedTime);
+  }
+
+  document.getElementById('start').addEventListener('click', () => {
+    if (!isRunning) {
+      isRunning = true;
+      startTime = Date.now() - elapsedTime;
+      timerInterval = setInterval(updateTime, 10);
+    }
+  });
+
+  document.getElementById('pause').addEventListener('click', () => {
+    if (isRunning) {
+      isRunning = false;
+      clearInterval(timerInterval);
+    }
+  });
+
+  document.getElementById('reset').addEventListener('click', () => {
+    isRunning = false;
+    clearInterval(timerInterval);
+    startTime = 0;
+    elapsedTime = 0;
+    display.textContent = "00:00:00";
+    lapsContainer.innerHTML = "";
+  });
+
+  document.getElementById('lap').addEventListener('click', () => {
+    if (isRunning) {
+      const lapTime = formatTime(elapsedTime);
+      const lapItem = document.createElement('li');
+      lapItem.textContent = lapTime;
+      lapsContainer.appendChild(lapItem);
+
+      // Automatically clear laps after 10 laps
+      if (lapsContainer.children.length > 10) {
+        lapsContainer.removeChild(lapsContainer.firstChild);
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
